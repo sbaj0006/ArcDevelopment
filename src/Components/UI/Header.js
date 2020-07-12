@@ -16,6 +16,9 @@ import { useTheme } from "@material-ui/core/styles";
 import SwipeableDrawer from "@material-ui/core/SwipeableDrawer";
 import MenuIcon from "@material-ui/icons/Menu";
 import IconButton from "@material-ui/core/IconButton";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 function ElevationScroll(props) {
   const { children, window } = props;
@@ -70,6 +73,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: "50px",
     marginRight: "25px",
     height: "45px",
+    "&:hover": {
+      backgroundColor: theme.palette.secondary.light,
+    },
   },
   menu: {
     backgroundColor: theme.palette.common.blue,
@@ -93,6 +99,23 @@ const useStyles = makeStyles((theme) => ({
     height: "50px",
     width: "50px",
   },
+  drawer: {
+    backgroundColor: theme.palette.common.blue,
+  },
+  drawerItem: {
+    ...theme.typography.tab,
+    color: "white",
+    opacity: 0.7,
+  },
+  drawerItemEstimate: {
+    backgroundColor: theme.palette.common.orange,
+  },
+  drawerItemSelected: {
+    opacity: 1,
+  },
+  appBar: {
+    zIndex: theme.zIndex.modal + 1,
+  },
 }));
 
 export default function Header(props) {
@@ -100,14 +123,12 @@ export default function Header(props) {
   const theme = useTheme();
   const iOS = process.browser && /iPad|iPhone|iPod/.test(navigator.userAgent);
   const matches = useMediaQuery(theme.breakpoints.down("md"));
-  const [value, setValue] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [openMenu, setOpenMenu] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [openDrawer, setOpenDrawer] = useState(false);
 
   const handleChange = (e, newValue) => {
-    setValue(newValue);
+    props.setValue(newValue);
   };
 
   const handleClick = (e) => {
@@ -123,96 +144,117 @@ export default function Header(props) {
   const handleMenuItemClick = (e, i) => {
     setAnchorEl(null);
     setOpenMenu(false);
-    setSelectedIndex(i);
+    props.setSelectedIndex(i);
   };
 
   const menuOptions = [
-    { name: "Services", link: "/services" },
-    { name: "Custom Software Development", link: "/customsoftware" },
+    { name: "Services", link: "/services", activeIndex: 1, selectedIndex: 0 },
+    {
+      name: "Custom Software Development",
+      link: "/customsoftware",
+      activeIndex: 1,
+      selectedIndex: 1,
+    },
     {
       name: "Mobile App Development",
       link: "/mobileapps",
+      activeIndex: 1,
+      selectedIndex: 2,
     },
     {
       name: "Website Development",
       link: "/websites",
+      activeIndex: 1,
+      selectedIndex: 3,
     },
   ];
 
-  useEffect(() => {
-    if (window.location.pathname === "/" && value !== 0) {
-      setValue(0);
-    } else if (window.location.pathname === "/services" && value !== 1) {
-      setValue(1);
-    } else if (window.location.pathname === "/revolution" && value !== 2) {
-      setValue(2);
-    } else if (window.location.pathname === "/about" && value !== 3) {
-      setValue(3);
-    } else if (window.location.pathname === "/contact" && value !== 4) {
-      setValue(4);
-    } else if (window.location.pathname === "/estimate" && value !== 5) {
-      setValue(5);
-    }
+  const routes = [
+    { name: "Home", link: "/", activeIndex: 0 },
+    { name: "Services", link: "/services", activeIndex: 1 },
+    { name: "The Revolution", link: "/revolution", activeIndex: 2 },
+    { name: "About Us", link: "/about", activeIndex: 3 },
+    { name: "Contact Us", link: "/contact", activeIndex: 4 },
+  ];
 
-    switch (window.location.pathname) {
-      case "/":
-        if (value !== 0) {
-          setValue(0);
-        }
-        break;
-      case "/services":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(0);
-        }
-        break;
-      case "/customsoftware":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(1);
-        }
-        break;
-      case "/mobileapps":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(2);
-        }
-        break;
-      case "/websites":
-        if (value !== 1) {
-          setValue(1);
-          setSelectedIndex(3);
-        }
-        break;
-      case "/revolution":
-        if (value !== 2) {
-          setValue(2);
-        }
-        break;
-      case "/about":
-        if (value !== 3) {
-          setValue(3);
-        }
-        break;
-      case "/contact":
-        if (value !== 4) {
-          setValue(4);
-        }
-        break;
-      case "/estimate":
-        if (value !== 5) {
-          setValue(5);
-        }
-        break;
-      default:
-        break;
-    }
-  }, [value]);
+  useEffect(() => {
+    [...menuOptions, ...routes].forEach((route) => {
+      switch (window.location.pathname) {
+        case `${route.link}`:
+          if (props.value !== route.activeIndex) {
+            props.setValue(route.activeIndex);
+            if (
+              route.selectedIndex &&
+              route.selectedIndex !== props.selectedIndex
+            ) {
+              props.setSelectedIndex(route.selectedIndex);
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    });
+
+    // switch (window.location.pathname) {
+    //   case "/":
+    //     if (value !== 0) {
+    //       setValue(0);
+    //     }
+    //     break;
+    //   case "/services":
+    //     if (value !== 1) {
+    //       setValue(1);
+    //       setSelectedIndex(0);
+    //     }
+    //     break;
+    //   case "/customsoftware":
+    //     if (value !== 1) {
+    //       setValue(1);
+    //       setSelectedIndex(1);
+    //     }
+    //     break;
+    //   case "/mobileapps":
+    //     if (value !== 1) {
+    //       setValue(1);
+    //       setSelectedIndex(2);
+    //     }
+    //     break;
+    //   case "/websites":
+    //     if (value !== 1) {
+    //       setValue(1);
+    //       setSelectedIndex(3);
+    //     }
+    //     break;
+    //   case "/revolution":
+    //     if (value !== 2) {
+    //       setValue(2);
+    //     }
+    //     break;
+    //   case "/about":
+    //     if (value !== 3) {
+    //       setValue(3);
+    //     }
+    //     break;
+    //   case "/contact":
+    //     if (value !== 4) {
+    //       setValue(4);
+    //     }
+    //     break;
+    //   case "/estimate":
+    //     if (value !== 5) {
+    //       setValue(5);
+    //     }
+    //     break;
+    //   default:
+    //     break;
+    // }
+  }, [props.value, menuOptions, props.selectedIndex, routes, props]);
 
   const tabs = (
     <React.Fragment>
       <Tabs
-        value={value}
+        value={props.value}
         onChange={handleChange}
         className={classes.tabContainer}
         indicatorColor="primary"
@@ -257,6 +299,7 @@ export default function Header(props) {
         onClose={handleClose}
         MenuListProps={{ onMouseLeave: handleClose }}
         elevation={0}
+        style={{ zIndex: 1302 }}
       >
         {/* <MenuItem
                 onClick={() => {
@@ -311,10 +354,10 @@ export default function Header(props) {
             classes={{ root: classes.menuItem }}
             onClick={(event) => {
               handleMenuItemClick(event, i);
-              setValue(1);
+              props.setValue(1);
               handleClose();
             }}
-            selected={i === selectedIndex && value === 1}
+            selected={i === props.selectedIndex && props.value === 1}
           >
             {option.name}
           </MenuItem>
@@ -331,8 +374,144 @@ export default function Header(props) {
         open={openDrawer}
         onClose={() => setOpenDrawer(false)}
         onOpen={() => setOpenDrawer(true)}
+        classes={{ paper: classes.drawer }}
       >
-        Example Drawer
+        <div className={classes.toolbarMargin} />
+        <List disablePadding>
+          <ListItem
+            divider
+            button
+            onClick={() => {
+              setOpenDrawer(false);
+              props.setValue(0);
+            }}
+            selected={props.value === 0}
+            component={Link}
+            to="/"
+          >
+            <ListItemText
+              className={
+                props.value === 0
+                  ? [classes.drawerItem, classes.drawerItemSelected]
+                  : classes.drawerItem
+              }
+              disableTypography
+            >
+              Home
+            </ListItemText>
+          </ListItem>
+          <ListItem
+            divider
+            button
+            onClick={() => {
+              setOpenDrawer(false);
+              props.setValue(1);
+            }}
+            selected={props.value === 1}
+            component={Link}
+            to="/services"
+          >
+            <ListItemText
+              className={
+                props.widthvalue === 1
+                  ? [classes.drawerItem, classes.drawerItemSelected]
+                  : classes.drawerItem
+              }
+              disableTypography
+            >
+              Services
+            </ListItemText>
+          </ListItem>
+          <ListItem
+            divider
+            button
+            onClick={() => {
+              setOpenDrawer(false);
+              props.setValue(2);
+            }}
+            selected={props.value === 2}
+            component={Link}
+            to="/revolution"
+          >
+            <ListItemText
+              className={
+                props.value === 2
+                  ? [classes.drawerItem, classes.drawerItemSelected]
+                  : classes.drawerItem
+              }
+              disableTypography
+            >
+              The Revolution
+            </ListItemText>
+          </ListItem>
+          <ListItem
+            divider
+            button
+            onClick={() => {
+              setOpenDrawer(false);
+              props.setValue(3);
+            }}
+            selected={props.value === 3}
+            component={Link}
+            to="/about"
+          >
+            <ListItemText
+              className={
+                props.value === 3
+                  ? [classes.drawerItem, classes.drawerItemSelected]
+                  : classes.drawerItem
+              }
+              disableTypography
+            >
+              About Us
+            </ListItemText>
+          </ListItem>
+          <ListItem
+            divider
+            button
+            onClick={() => {
+              setOpenDrawer(false);
+              props.setValue(4);
+            }}
+            selected={props.value === 4}
+            component={Link}
+            to="/contact"
+          >
+            <ListItemText
+              className={
+                props.value === 4
+                  ? [classes.drawerItem, classes.drawerItemSelected]
+                  : classes.drawerItem
+              }
+              disableTypography
+            >
+              Contact Us
+            </ListItemText>
+          </ListItem>
+          <ListItem
+            divider
+            button
+            onClick={() => {
+              setOpenDrawer(false);
+              props.setValue(5);
+            }}
+            selected={props.value === 5}
+            component={Link}
+            className={classes.drawerItemEstimate}
+            to="/estimate"
+          >
+            <ListItemText
+              className={
+                props.value === 5
+                  ? [classes.drawerItem, classes.drawerItemSelected]
+                  : classes.drawerItem
+              }
+              disableTypography
+            >
+              Free Estimate
+            </ListItemText>
+          </ListItem>
+        </List>
       </SwipeableDrawer>
       <IconButton
         className={classes.drawerIconContainer}
@@ -347,13 +526,13 @@ export default function Header(props) {
   return (
     <React.Fragment>
       <ElevationScroll>
-        <AppBar position="fixed">
+        <AppBar position="fixed" className={classes.appBar}>
           <Toolbar disableGutters={true}>
             {/* <Typography variant="h3">Arc Development</Typography> */}
             <Button
               component={Link}
               to="/"
-              onClick={() => setValue(0)}
+              onClick={() => props.setValue(0)}
               disableRipple
               className={classes.logoContainer}
             >
